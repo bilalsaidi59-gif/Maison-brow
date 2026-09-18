@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maison Brow — Espace admin</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ece2d2; --surface:#f7f1e6; --field:#fffcf6; --ink:#3b312a; --muted:#8a7d69;
+    --brown:#6a4e30; --brown-dark:#553d24; --gold:#8b6c46; --line:#d6c8b0; --soft:#efe6d6;
+    --amber-bg:#f2e5c9; --amber-tx:#8a6a2c;
+    --green-bg:#dde8d8; --green-tx:#4c6a42;
+    --grey-bg:#e7ddce; --grey-tx:#9a8b76;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Jost',system-ui,sans-serif;
+    line-height:1.55;padding:26px 14px 44px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .card{width:100%;max-width:540px;background:var(--surface);border:1px solid var(--line);border-radius:16px;}
+
+  /* En-tête */
+  .head{text-align:center;padding:24px 22px 6px;}
+  .logo{max-width:96px;height:auto;}
+  .wordmark{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;
+    letter-spacing:.32em;color:var(--brown);padding-left:.32em;text-transform:uppercase;}
+  .subtitle{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold);margin-top:2px;}
+
+  /* Connexion */
+  #login{padding:26px 24px 30px;}
+  #login .row{display:flex;flex-direction:column;gap:8px;max-width:320px;margin:0 auto;}
+  label{font-size:13px;font-weight:500;color:var(--brown);}
+  input[type="password"]{background:var(--field);border:1px solid var(--line);border-radius:11px;
+    padding:13px 14px;font-family:inherit;font-size:15px;color:var(--ink);}
+  input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(139,108,70,.15);}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:300;margin-top:4px;}
+  button{font-family:'Jost',sans-serif;cursor:pointer;border:none;}
+  .btn-main{background:var(--brown);color:var(--surface);border-radius:11px;padding:13px;
+    font-size:15px;font-weight:500;letter-spacing:.02em;transition:background .15s;width:100%;}
+  .btn-main:hover{background:var(--brown-dark);}
+  .btn-main:disabled{opacity:.55;cursor:default;}
+  .err{color:#a3462f;font-size:13.5px;text-align:center;margin-top:12px;min-height:1px;}
+
+  /* Barre du tableau de bord */
+  #dash{display:none;}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:18px 20px;border-bottom:1px solid var(--line);}
+  .bar h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;color:var(--brown);margin:0;}
+  .bar-actions{display:flex;gap:8px;}
+  .btn-ghost{background:var(--soft);color:var(--brown);border:1px solid var(--line);
+    border-radius:9px;padding:8px 12px;font-size:13px;transition:border-color .12s;}
+  .btn-ghost:hover{border-color:var(--gold);}
+
+  .list{padding:14px 16px 18px;}
+  .state{text-align:center;color:var(--muted);font-weight:300;font-size:14.5px;padding:26px 10px;}
+
+  /* Carte de demande */
+  .demande{border:1px solid var(--line);border-radius:13px;padding:15px 16px;margin-bottom:12px;background:#fbf7ef;}
+  .demande.done{opacity:.72;}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .badge{font-size:11.5px;font-weight:500;padding:4px 10px;border-radius:20px;letter-spacing:.02em;white-space:nowrap;}
+  .b-att{background:var(--amber-bg);color:var(--amber-tx);}
+  .b-ok{background:var(--green-bg);color:var(--green-tx);}
+  .b-no{background:var(--grey-bg);color:var(--grey-tx);}
+  .svc{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--brown);font-weight:600;text-align:right;line-height:1.2;}
+  .when{font-size:14.5px;color:var(--ink);}
+  .when b{color:var(--brown);font-weight:500;}
+  .who{font-size:14px;margin-top:3px;}
+  .msg{font-size:13.5px;color:var(--muted);font-weight:300;margin-top:6px;font-style:italic;}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px;}
+  .actions a,.actions button{border-radius:9px;padding:10px 14px;font-size:13.5px;font-weight:500;
+    text-decoration:none;text-align:center;flex:1 1 auto;}
+  .a-insta{background:var(--soft);color:var(--brown);border:1px solid var(--line);}
+  .a-insta:hover{border-color:var(--gold);}
+  .a-ok{background:var(--brown);color:var(--surface);}
+  .a-ok:hover{background:var(--brown-dark);}
+  .a-no{background:transparent;color:var(--grey-tx);border:1px solid var(--line);}
+  .a-no:hover{border-color:#c9a99a;color:#a3462f;}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+</style>
+</head>
+<body>
+
+  <!-- ===== CONNEXION ===== -->
+  <main class="card" id="loginCard">
+    <div class="head">
+      <img src="mb-logo.png" alt="Maison Brow" class="logo"
+           onerror="this.style.display='none';document.getElementById('wm').style.display='block';">
+      <div id="wm" class="wordmark" style="display:none;">Maison Brow</div>
+      <div class="subtitle">Espace admin</div>
+    </div>
+    <div id="login">
+      <div class="row">
+        <label for="pass">Mot de passe</label>
+        <input type="password" id="pass" autocomplete="current-password" placeholder="••••••••">
+        <label class="check"><input type="checkbox" id="remember" checked> Rester connectée sur cet appareil</label>
+        <button class="btn-main" id="loginBtn">Se connecter</button>
+      </div>
+      <div class="err" id="loginErr"></div>
+    </div>
+  </main>
+
+  <!-- ===== TABLEAU DE BORD ===== -->
+  <main class="card" id="dash">
+    <div class="bar">
+      <h1>Demandes</h1>
+      <div class="bar-actions">
+        <button class="btn-ghost" id="refreshBtn">Actualiser</button>
+        <button class="btn-ghost" id="logoutBtn">Déconnexion</button>
+      </div>
+    </div>
+    <div class="list" id="list">
+      <div class="state">Chargement…</div>
+    </div>
+  </main>
+
+<script>
+/* ================== CONFIG ================== */
+const API = 'https://script.google.com/macros/s/AKfycbyXppSmgbHvitz8ABFffl9YuQkkWylsv9tGoTIGPq52j7rgVfeaktcYGDxEi-smPLEf4g/exec';
+const STORE_KEY = 'mb_admin_pass';
+
+let ADMIN_PASS = '';
+const $ = id => document.getElementById(id);
+
+/* Stockage local (protégé) */
+function lire(){ try{ return localStorage.getItem(STORE_KEY) || ''; }catch(e){ return ''; } }
+function ecrire(v){ try{ localStorage.setItem(STORE_KEY, v); }catch(e){} }
+function effacer(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} }
+
+/* Appel POST "simple" (pas de préflight CORS) */
+async function apiPost(payload){
+  const r = await fetch(API, { method:'POST', body: JSON.stringify(payload) });
+  return await r.json();
+}
+
+/* Ordre d'affichage : à confirmer en premier, puis par date/heure */
+const RANG = { 'À confirmer':0, 'Confirmé':1, 'Refusé':2 };
+function trier(a,b){
+  const ra = RANG[a.statut] ?? 3, rb = RANG[b.statut] ?? 3;
+  if (ra !== rb) return ra - rb;
+  return (a.date + a.heure).localeCompare(b.date + b.heure);
+}
+
+function frDate(ymd){
+  const p = String(ymd).split('-');
+  return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ymd;
+}
+function badgeClass(s){ return s === 'Confirmé' ? 'b-ok' : s === 'Refusé' ? 'b-no' : 'b-att'; }
+
+/* ================== CONNEXION ================== */
+async function connexion(pass, silencieux){
+  ADMIN_PASS = pass;
+  if (!silencieux){ const b=$('loginBtn'); b.disabled=true; b.textContent='Connexion…'; }
+  try{
+    const data = await apiPost({ action:'admin_liste', pass: ADMIN_PASS });
+    if (data.ok){
+      if ($('remember').checked) ecrire(ADMIN_PASS); else effacer();
+      $('loginCard').style.display='none';
+      $('dash').style.display='block';
+      afficher(data.demandes);
+      return;
+    }
+    if (!silencieux) $('loginErr').textContent = 'Mot de passe incorrect.';
+    else { effacer(); }  // mot de passe stocké devenu invalide
+  }catch(e){
+    if (!silencieux) $('loginErr').textContent = 'Connexion impossible. Réessaie.';
+  }
+  ADMIN_PASS = silencieux ? '' : ADMIN_PASS;
+  const b=$('loginBtn'); b.disabled=false; b.textContent='Se connecter';
+}
+
+/* ================== CHARGEMENT ================== */
+async function recharger(){
+  $('list').innerHTML = '<div class="state">Chargement…</div>';
+  try{
+    const data = await apiPost({ action:'admin_liste', pass: ADMIN_PASS });
+    if (!data.ok){ deconnexion(); return; }
+    afficher(data.demandes);
+  }catch(e){
+    $('list').innerHTML = '<div class="state">Impossible de charger. <a href="#" onclick="recharger();return false;">Réessayer</a></div>';
+  }
+}
+
+function afficher(demandes){
+  const list = $('list');
+  if (!demandes || !demandes.length){
+    list.innerHTML = '<div class="state">Aucune demande pour le moment.</div>';
+    return;
+  }
+  demandes.sort(trier);
+  list.innerHTML = '';
+  demandes.forEach(d => list.appendChild(carte(d)));
+}
+
+function carte(d){
+  const handle = d.instagram.replace(/^@/,'');
+  const el = document.createElement('div');
+  el.className = 'demande' + (d.statut !== 'À confirmer' ? ' done' : '');
+
+  el.innerHTML =
+    '<div class="top">' +
+      '<span class="badge ' + badgeClass(d.statut) + '">' + d.statut + '</span>' +
+      '<span class="svc">' + d.service + '</span>' +
+    '</div>' +
+    '<div class="when"><b>' + frDate(d.date) + '</b> à <b>' + d.heure + '</b>' +
+      (d.duree ? ' · ' + d.duree + ' min' : '') + '</div>' +
+    '<div class="who">' + d.prenom + ' — ' + d.instagram + '</div>' +
+    (d.message ? '<div class="msg">« ' + d.message + ' »</div>' : '') +
+    '<div class="actions">' +
+      '<a class="a-insta" href="https://instagram.com/' + handle + '" target="_blank" rel="noopener">Contacter sur Instagram</a>' +
+    '</div>';
+
+  // Boutons Confirmer / Refuser uniquement pour les demandes en attente
+  if (d.statut === 'À confirmer'){
+    const zone = el.querySelector('.actions');
+    const ok = document.createElement('button');
+    ok.className='a-ok'; ok.textContent='Confirmer';
+    ok.onclick = () => decider(el, d.eventId, 'confirmer');
+    const no = document.createElement('button');
+    no.className='a-no'; no.textContent='Refuser';
+    no.onclick = () => decider(el, d.eventId, 'refuser');
+    zone.appendChild(ok); zone.appendChild(no);
+  }
+  return el;
+}
+
+async function decider(el, eventId, decision){
+  const boutons = el.querySelectorAll('.a-ok,.a-no');
+  boutons.forEach(b => { b.disabled = true; });
+  const cible = el.querySelector(decision === 'confirmer' ? '.a-ok' : '.a-no');
+  const avant = cible.textContent; cible.textContent = '…';
+
+  try{
+    const data = await apiPost({ action:'admin_maj', pass: ADMIN_PASS, eventId: eventId, decision: decision });
+    if (data.ok){
+      // mise à jour de la carte sur place
+      const badge = el.querySelector('.badge');
+      badge.textContent = data.statut;
+      badge.className = 'badge ' + badgeClass(data.statut);
+      el.classList.add('done');
+      boutons.forEach(b => b.remove());
+    }else{
+      cible.textContent = avant; boutons.forEach(b => b.disabled = false);
+      alert('Action impossible. Réessaie.');
+    }
+  }catch(e){
+    cible.textContent = avant; boutons.forEach(b => b.disabled = false);
+    alert('Connexion impossible. Réessaie.');
+  }
+}
+
+function deconnexion(){
+  effacer(); ADMIN_PASS='';
+  $('dash').style.display='none';
+  $('loginCard').style.display='block';
+  $('pass').value='';
+  $('loginErr').textContent='';
+  const b=$('loginBtn'); b.disabled=false; b.textContent='Se connecter';
+}
+
+/* ================== BRANCHEMENTS ================== */
+$('loginBtn').addEventListener('click', () => connexion($('pass').value, false));
+$('pass').addEventListener('keydown', e => { if (e.key === 'Enter') connexion($('pass').value, false); });
+$('refreshBtn').addEventListener('click', recharger);
+$('logoutBtn').addEventListener('click', deconnexion);
+
+/* Reconnexion auto si un mot de passe est mémorisé */
+(function(){ const p = lire(); if (p) connexion(p, true); })();
+</script>
+</body>
+</html>
