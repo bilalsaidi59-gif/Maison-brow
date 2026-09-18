@@ -137,7 +137,7 @@ async function apiPost(payload){
 }
 
 /* Ordre d'affichage : à confirmer en premier, puis par date/heure */
-const RANG = { 'À confirmer':0, 'Confirmé':1, 'Refusé':2 };
+const RANG = { 'À confirmer':0, 'Confirmé':1, 'Refusé':2, 'Annulé':2 };
 function trier(a,b){
   const ra = RANG[a.statut] ?? 3, rb = RANG[b.statut] ?? 3;
   if (ra !== rb) return ra - rb;
@@ -148,7 +148,7 @@ function frDate(ymd){
   const p = String(ymd).split('-');
   return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ymd;
 }
-function badgeClass(s){ return s === 'Confirmé' ? 'b-ok' : s === 'Refusé' ? 'b-no' : 'b-att'; }
+function badgeClass(s){ return s === 'Confirmé' ? 'b-ok' : (s === 'Refusé' || s === 'Annulé') ? 'b-no' : 'b-att'; }
 
 /* ================== CONNEXION ================== */
 async function connexion(pass, silencieux){
@@ -223,11 +223,18 @@ function carte(d){
     no.className='a-no'; no.textContent='Refuser';
     no.onclick = () => decider(el, d.eventId, 'refuser');
     zone.appendChild(ok); zone.appendChild(no);
+  } else if (d.statut === 'Confirmé'){
+    const zone = el.querySelector('.actions');
+    const annul = document.createElement('button');
+    annul.className='a-no'; annul.textContent='Annuler le RDV';
+    annul.onclick = () => decider(el, d.eventId, 'annuler');
+    zone.appendChild(annul);
   }
   return el;
 }
 
 async function decider(el, eventId, decision){
+  if (decision === 'annuler' && !confirm('Annuler ce rendez-vous confirmé ? Pense à prévenir la cliente sur Instagram.')) return;
   const boutons = el.querySelectorAll('.a-ok,.a-no');
   boutons.forEach(b => { b.disabled = true; });
   const cible = el.querySelector(decision === 'confirmer' ? '.a-ok' : '.a-no');
