@@ -117,6 +117,17 @@
   .note{text-align:center;color:var(--muted);font-size:12.5px;font-weight:300;margin-top:12px;line-height:1.5;}
   .form-error{color:#a3462f;font-size:13.5px;margin-top:12px;text-align:center;min-height:1px;}
 
+  /* ---- Mentions Instagram ---- */
+  .insta-top{text-align:center;font-size:13.5px;font-weight:300;color:var(--muted);margin:0 0 22px;line-height:1.5;}
+  .insta-top a,.insta-line a{color:var(--brown);font-weight:500;text-decoration:none;}
+  .insta-top a:hover,.insta-line a:hover{text-decoration:underline;}
+  .insta-line{text-align:center;font-size:13px;font-weight:300;color:var(--muted);
+    margin-top:16px;padding-top:16px;border-top:1px solid var(--line);line-height:1.6;}
+  .insta-btn{display:inline-block;margin-top:18px;background:var(--brown);color:var(--surface);
+    border-radius:11px;padding:12px 24px;font-size:14px;font-weight:500;letter-spacing:.02em;
+    text-decoration:none;transition:background .15s;}
+  .insta-btn:hover{background:var(--brown-dark);}
+
   /* ---- Confirmation ---- */
   #confirmation{display:none;text-align:center;}
   #confirmation .big-heart{font-size:38px;color:var(--gold);line-height:1;}
@@ -163,6 +174,7 @@
     <div class="divider"><span class="heart">♥</span></div>
     <h1>Prendre rendez-vous</h1>
     <p class="intro">Choisis ton soin et un créneau. Je te confirme ensuite par message sur Instagram.</p>
+    <p class="insta-top">Les photos des rendus, c'est sur Instagram — <a href="https://instagram.com/maison___brow" target="_blank" rel="noopener">@maison___brow</a></p>
 
     <div class="field">
       <label for="service">Soin</label>
@@ -198,6 +210,7 @@
     <button class="cta" id="submitBtn">Envoyer ma demande</button>
     <div class="form-error" id="formError"></div>
     <p class="note">L'adresse (Anderlecht) t'est communiquée une fois le rendez-vous confirmé.</p>
+    <p class="insta-line">Une question ? Tout se passe sur Instagram — <a href="https://instagram.com/maison___brow" target="_blank" rel="noopener">@maison___brow</a></p>
   </main>
 
   <!-- ============ CONFIRMATION ============ -->
@@ -207,6 +220,7 @@
     <p class="intro" id="confirmText"></p>
     <div class="recap" id="confirmRecap"></div>
     <p class="note" id="confirmNote"></p>
+    <a class="insta-btn" href="https://instagram.com/maison___brow" target="_blank" rel="noopener">Voir Maison Brow sur Instagram</a>
   </main>
 
   <!-- ============ INFOS / RÈGLEMENT ============ -->
@@ -367,7 +381,7 @@ function afficherConfirmation(d){
     + ig + ') pour confirmer ton rendez-vous et t\'envoyer l\'adresse.';
   $('confirmRecap').innerHTML =
     '<b>Soin :</b> ' + d.service + '<br><b>Date :</b> ' + d.date + '<br><b>Heure :</b> ' + d.heure;
-  $('confirmNote').textContent = 'Rien n\'est encore confirmé tant que je ne t\'ai pas répondu — pense à surveiller tes messages 🤎';
+  $('confirmNote').textContent = 'Rien n\'est confirmé tant que je ne t\'ai pas répondu sur Instagram — suis @maison___brow et garde un œil sur tes messages 🤎';
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
