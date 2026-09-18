@@ -247,7 +247,7 @@ const API = 'https://script.google.com/macros/s/AKfycbyXppSmgbHvitz8ABFffl9YuQkk
 
 const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 
-let etat = { joursOuverts: [], heureChoisie: null };
+let etat = { joursOuverts: [], dispos: {}, heureChoisie: null };
 
 /* Raccourcis */
 const $ = id => document.getElementById(id);
@@ -262,6 +262,7 @@ async function init(){
     if(!data.ok) throw new Error('init KO');
 
     etat.joursOuverts = data.joursOuverts;
+    etat.dispos = data.dispos || {};
 
     // Liste des soins
     const sel = $('service');
@@ -289,47 +290,57 @@ async function init(){
   }
 }
 
-/* ================== CRÉNEAUX ================== */
-async function chargerCreneaux(){
+/* ================== CRÉNEAUX (affichage instantané depuis le cache) ================== */
+function chargerCreneaux(){
   const service = $('service').value;
   const date = $('date').value;
   etat.heureChoisie = null;
   const box = $('slots'), msg = $('slotsMsg');
-
   box.innerHTML='';
+
   if(!service || !date){ msg.textContent='Choisis un soin et une date ci-dessus pour voir les créneaux.'; return; }
-  msg.textContent='Recherche des créneaux…';
 
-  // Jour fermé ? (contrôle rapide côté client ; le serveur reste la référence)
-  const parts = date.split('-');
-  const jour = JOURS[new Date(+parts[0], +parts[1]-1, +parts[2]).getDay()];
-  if(etat.joursOuverts.indexOf(jour) === -1){
-    msg.textContent = 'Fermé ce jour-là. Choisis un autre jour.'; return;
+  const slots = (etat.dispos[service] && etat.dispos[service][date]) ? etat.dispos[service][date] : [];
+  rendreCreneaux(slots, date);
+}
+
+function rendreCreneaux(slots, date){
+  const box = $('slots'), msg = $('slotsMsg');
+  box.innerHTML='';
+  if(!slots.length){
+    const p = date.split('-');
+    const jour = JOURS[new Date(+p[0], +p[1]-1, +p[2]).getDay()];
+    msg.textContent = (etat.joursOuverts.indexOf(jour) === -1)
+      ? 'Fermé ce jour-là. Choisis un autre jour.'
+      : 'Aucun créneau libre ce jour. Essaie une autre date.';
+    return;
   }
+  msg.textContent='';
+  slots.forEach(hm => {
+    const b = document.createElement('button');
+    b.type='button'; b.className='slot'; b.textContent=hm; b.setAttribute('aria-pressed','false');
+    b.onclick = () => {
+      box.querySelectorAll('.slot').forEach(s => s.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
+      etat.heureChoisie = hm;
+      $('formError').textContent='';
+    };
+    box.appendChild(b);
+  });
+}
 
+/* Rafraîchit un créneau précis depuis le serveur (cas rare : créneau pris depuis le chargement) */
+async function rafraichirCreneaux(service, date){
   try{
-    const url = API + '?action=creneaux&date=' + encodeURIComponent(date) +
-                '&service=' + encodeURIComponent(service);
+    const url = API + '?action=creneaux&date=' + encodeURIComponent(date) + '&service=' + encodeURIComponent(service);
     const data = await (await fetch(url)).json();
-    if(!data.ok) throw new Error();
-
-    if(!data.creneaux.length){ msg.textContent = 'Aucun créneau libre ce jour. Essaie une autre date.'; return; }
-
-    msg.textContent='';
-    data.creneaux.forEach(hm => {
-      const b = document.createElement('button');
-      b.type='button'; b.className='slot'; b.textContent=hm; b.setAttribute('aria-pressed','false');
-      b.onclick = () => {
-        box.querySelectorAll('.slot').forEach(s => s.setAttribute('aria-pressed','false'));
-        b.setAttribute('aria-pressed','true');
-        etat.heureChoisie = hm;
-        $('formError').textContent='';
-      };
-      box.appendChild(b);
-    });
-  }catch(e){
-    msg.textContent = "Impossible de charger les créneaux. Réessaie.";
-  }
+    if(data.ok){
+      etat.dispos[service] = etat.dispos[service] || {};
+      etat.dispos[service][date] = data.creneaux;
+      etat.heureChoisie = null;
+      rendreCreneaux(data.creneaux, date);
+    }
+  }catch(e){}
 }
 
 /* ================== ENVOI ================== */
@@ -363,7 +374,7 @@ async function envoyer(){
 
     if(data.raison === 'CRENEAU_PRIS'){
       err.textContent = 'Ce créneau vient d\'être réservé. Choisis-en un autre.';
-      chargerCreneaux();
+      rafraichirCreneaux(payload.service, payload.date);
     }else{
       err.textContent = 'Un souci est survenu. Réessaie dans un instant.';
     }
@@ -376,6 +387,7 @@ async function envoyer(){
 
 function afficherConfirmation(d){
   $('bookingCard').style.display='none';
+  $('confirmation').style.display='block';
   const ig = d.instagram || '';
   $('confirmText').innerHTML = 'Merci ' + d.prenom + ' ! Je te contacte très vite sur Instagram ('
     + ig + ') pour confirmer ton rendez-vous et t\'envoyer l\'adresse.';
