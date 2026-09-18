@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maison Brow — Prendre rendez-vous</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============ 1. RÉGLAGE À FAIRE : colle ton URL /exec ci-dessous ============ */
+  /* (elle est déjà pré-remplie avec ton déploiement actuel) */
+
+  :root{
+    --bg:#ece2d2;        /* fond sable chaud */
+    --surface:#f7f1e6;   /* carte ivoire clair */
+    --field:#fffcf6;     /* fond des champs */
+    --ink:#3b312a;       /* texte */
+    --muted:#8a7d69;     /* texte secondaire */
+    --brown:#6a4e30;     /* marque / titres / bouton */
+    --brown-dark:#553d24;/* survol bouton */
+    --gold:#8b6c46;      /* accents / focus */
+    --line:#d6c8b0;      /* filets / bordures */
+    --soft:#efe6d6;      /* remplissages discrets (chips) */
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Jost',system-ui,sans-serif;
+    font-weight:400;
+    line-height:1.6;
+    padding:28px 16px 48px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+  }
+  .card{
+    width:100%;
+    max-width:460px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:30px 26px;
+  }
+
+  /* ---- Marque ---- */
+  .brand{text-align:center;padding-top:6px;}
+  .logo{max-width:132px;height:auto;display:inline-block;}
+  .brand-fallback{display:none;}
+  .brand-fallback .mono{
+    font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:64px;color:var(--brown);line-height:1;letter-spacing:.02em;
+  }
+  .brand-fallback .wordmark{
+    font-family:'Cormorant Garamond',serif;font-weight:500;
+    font-size:20px;letter-spacing:.42em;color:var(--brown);
+    margin-top:6px;padding-left:.42em;text-transform:uppercase;
+  }
+
+  /* ---- Filet décoratif avec cœur ---- */
+  .divider{display:flex;align-items:center;justify-content:center;gap:14px;margin:20px 0 16px;}
+  .divider::before,.divider::after{content:"";height:1px;width:52px;background:var(--line);}
+  .divider .heart{color:var(--gold);font-size:14px;line-height:1;}
+
+  /* ---- Titres ---- */
+  h1{
+    font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:29px;text-align:center;color:var(--brown);
+    margin:0 0 6px;letter-spacing:.01em;
+  }
+  .intro{text-align:center;color:var(--muted);font-size:15px;margin:0 0 22px;font-weight:300;}
+
+  /* ---- Formulaire ---- */
+  .field{margin-bottom:18px;}
+  label{display:block;font-size:13px;font-weight:500;color:var(--brown);margin-bottom:7px;letter-spacing:.02em;}
+  label .opt{color:var(--muted);font-weight:300;}
+  select,input[type="text"],input[type="date"],textarea{
+    width:100%;background:var(--field);
+    border:1px solid var(--line);border-radius:11px;
+    padding:13px 14px;font-family:inherit;font-size:15px;color:var(--ink);
+    -webkit-appearance:none;appearance:none;
+  }
+  select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238b6c46' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 15px center;padding-right:38px;cursor:pointer;}
+  textarea{resize:vertical;min-height:72px;}
+  select:focus,input:focus,textarea:focus{
+    outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(139,108,70,.15);
+  }
+  input[type="date"]{cursor:pointer;}
+
+  /* ---- Créneaux ---- */
+  .slots{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;}
+  .slot{
+    background:var(--soft);border:1px solid var(--line);color:var(--brown);
+    border-radius:9px;padding:9px 0;min-width:70px;flex:1 1 70px;text-align:center;
+    font-family:inherit;font-size:14px;cursor:pointer;transition:background .12s,color .12s,border-color .12s;
+  }
+  .slot:hover{border-color:var(--gold);}
+  .slot[aria-pressed="true"]{background:var(--brown);color:var(--surface);border-color:var(--brown);}
+  .slots-msg{color:var(--muted);font-size:14px;font-weight:300;padding:4px 0;}
+
+  /* ---- Bouton ---- */
+  button.cta{
+    width:100%;background:var(--brown);color:var(--surface);
+    border:none;border-radius:12px;padding:15px;margin-top:6px;
+    font-family:'Jost',sans-serif;font-size:15px;font-weight:500;letter-spacing:.03em;
+    cursor:pointer;transition:background .15s;
+  }
+  button.cta:hover{background:var(--brown-dark);}
+  button.cta:disabled{opacity:.55;cursor:default;}
+
+  .note{text-align:center;color:var(--muted);font-size:12.5px;font-weight:300;margin-top:12px;line-height:1.5;}
+  .form-error{color:#a3462f;font-size:13.5px;margin-top:12px;text-align:center;min-height:1px;}
+
+  /* ---- Confirmation ---- */
+  #confirmation{display:none;text-align:center;}
+  #confirmation .big-heart{font-size:38px;color:var(--gold);line-height:1;}
+  #confirmation h1{margin-top:14px;}
+  #confirmation .recap{
+    background:var(--soft);border-radius:12px;padding:16px 18px;margin:20px 0 6px;
+    text-align:left;font-size:14.5px;line-height:1.8;
+  }
+  #confirmation .recap b{color:var(--brown);}
+
+  /* ---- Infos / règlement ---- */
+  .infos h2{
+    font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;
+    color:var(--brown);text-align:center;margin:0 0 4px;
+  }
+  .rules{list-style:none;margin:16px 0 0;padding:0;}
+  .rules li{position:relative;padding:9px 0 9px 24px;font-size:14px;border-top:1px solid var(--line);font-weight:300;}
+  .rules li:first-child{border-top:none;}
+  .rules li::before{content:"♥";position:absolute;left:0;top:9px;color:var(--gold);font-size:11px;}
+  .place{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);text-align:center;font-size:13.5px;color:var(--muted);font-weight:300;line-height:1.7;}
+  .place b{color:var(--brown);font-weight:500;}
+
+  footer{text-align:center;font-size:13px;color:var(--muted);font-weight:300;}
+  footer a{color:var(--brown);text-decoration:none;font-weight:400;}
+  footer a:hover{text-decoration:underline;}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+</style>
+</head>
+<body>
+
+  <!-- ============ MARQUE ============ -->
+  <div class="brand">
+    <img src="mb-logo.png" alt="Maison Brow" class="logo"
+         onerror="this.style.display='none';document.getElementById('brandFallback').style.display='block';">
+    <div id="brandFallback" class="brand-fallback">
+      <div class="mono">MB</div>
+      <div class="wordmark">Maison Brow</div>
+    </div>
+  </div>
+
+  <!-- ============ RÉSERVATION ============ -->
+  <main class="card" id="bookingCard">
+    <div class="divider"><span class="heart">♥</span></div>
+    <h1>Prendre rendez-vous</h1>
+    <p class="intro">Choisis ton soin et un créneau. Je te confirme ensuite par message sur Instagram.</p>
+
+    <div class="field">
+      <label for="service">Soin</label>
+      <select id="service"><option value="">Chargement…</option></select>
+    </div>
+
+    <div class="field">
+      <label for="date">Date</label>
+      <input type="date" id="date">
+    </div>
+
+    <div class="field" id="slotsField">
+      <label for="slots">Créneau</label>
+      <div class="slots" id="slots"></div>
+      <div class="slots-msg" id="slotsMsg">Choisis un soin et une date ci-dessus pour voir les créneaux.</div>
+    </div>
+
+    <div class="field">
+      <label for="prenom">Prénom</label>
+      <input type="text" id="prenom" autocomplete="given-name" placeholder="Ton prénom">
+    </div>
+
+    <div class="field">
+      <label for="instagram">Instagram</label>
+      <input type="text" id="instagram" autocomplete="off" placeholder="@ton_pseudo">
+    </div>
+
+    <div class="field">
+      <label for="message">Message <span class="opt">(facultatif)</span></label>
+      <textarea id="message" placeholder="Une précision, une question…"></textarea>
+    </div>
+
+    <button class="cta" id="submitBtn">Envoyer ma demande</button>
+    <div class="form-error" id="formError"></div>
+    <p class="note">L'adresse (Anderlecht) t'est communiquée une fois le rendez-vous confirmé.</p>
+  </main>
+
+  <!-- ============ CONFIRMATION ============ -->
+  <main class="card" id="confirmation">
+    <div class="big-heart">♥</div>
+    <h1>Demande envoyée</h1>
+    <p class="intro" id="confirmText"></p>
+    <div class="recap" id="confirmRecap"></div>
+    <p class="note" id="confirmNote"></p>
+  </main>
+
+  <!-- ============ INFOS / RÈGLEMENT ============ -->
+  <section class="card infos">
+    <h2>Bon à savoir</h2>
+    <ul class="rules">
+      <li id="ruleAnnul">Toute annulation doit être signalée au minimum 24h à l'avance.</li>
+      <li>Merci de venir sans maquillage au niveau des sourcils.</li>
+      <li>Les accompagnants ne sont pas admis pendant le soin.</li>
+      <li>Un retard de plus de 15 minutes peut entraîner l'annulation du rendez-vous.</li>
+    </ul>
+    <div class="place">
+      <b>Anderlecht</b> — l'adresse est communiquée une fois le rendez-vous confirmé.
+    </div>
+  </section>
+
+  <footer>
+    <a href="https://instagram.com/maison___brow" target="_blank" rel="noopener">@maison___brow</a>
+  </footer>
+
+<script>
+/* ================== CONFIG ================== */
+const API = 'https://script.google.com/macros/s/AKfycbyXppSmgbHvitz8ABFffl9YuQkkWylsv9tGoTIGPq52j7rgVfeaktcYGDxEi-smPLEf4g/exec';
+
+const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+
+let etat = { joursOuverts: [], heureChoisie: null };
+
+/* Raccourcis */
+const $ = id => document.getElementById(id);
+const fmtDate = d => d.getFullYear() + '-' +
+  String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+
+/* ================== INITIALISATION ================== */
+async function init(){
+  try{
+    const r = await fetch(API + '?action=init');
+    const data = await r.json();
+    if(!data.ok) throw new Error('init KO');
+
+    etat.joursOuverts = data.joursOuverts;
+
+    // Liste des soins
+    const sel = $('service');
+    sel.innerHTML = '<option value="">Choisis un soin…</option>';
+    data.services.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.nom;
+      o.textContent = s.nom + '  —  ' + s.prix + ' € · ' + s.duree + ' min';
+      sel.appendChild(o);
+    });
+
+    // Bornes de la date : d'aujourd'hui à aujourd'hui + horizon
+    const today = new Date();
+    const max = new Date(); max.setDate(max.getDate() + (data.horizon || 30));
+    $('date').min = fmtDate(today);
+    $('date').max = fmtDate(max);
+
+    // Texte du délai d'annulation
+    const h = data.delaiAnnulation || 24;
+    $('ruleAnnul').textContent =
+      "Toute annulation doit être signalée au minimum " + h + "h à l'avance.";
+  }catch(e){
+    $('service').innerHTML = '<option value="">Indisponible — réessaie</option>';
+    $('formError').textContent = "Impossible de charger les soins. Vérifie ta connexion et recharge la page.";
+  }
+}
+
+/* ================== CRÉNEAUX ================== */
+async function chargerCreneaux(){
+  const service = $('service').value;
+  const date = $('date').value;
+  etat.heureChoisie = null;
+  const box = $('slots'), msg = $('slotsMsg');
+
+  box.innerHTML='';
+  if(!service || !date){ msg.textContent='Choisis un soin et une date ci-dessus pour voir les créneaux.'; return; }
+  msg.textContent='Recherche des créneaux…';
+
+  // Jour fermé ? (contrôle rapide côté client ; le serveur reste la référence)
+  const parts = date.split('-');
+  const jour = JOURS[new Date(+parts[0], +parts[1]-1, +parts[2]).getDay()];
+  if(etat.joursOuverts.indexOf(jour) === -1){
+    msg.textContent = 'Fermé ce jour-là. Choisis un autre jour.'; return;
+  }
+
+  try{
+    const url = API + '?action=creneaux&date=' + encodeURIComponent(date) +
+                '&service=' + encodeURIComponent(service);
+    const data = await (await fetch(url)).json();
+    if(!data.ok) throw new Error();
+
+    if(!data.creneaux.length){ msg.textContent = 'Aucun créneau libre ce jour. Essaie une autre date.'; return; }
+
+    msg.textContent='';
+    data.creneaux.forEach(hm => {
+      const b = document.createElement('button');
+      b.type='button'; b.className='slot'; b.textContent=hm; b.setAttribute('aria-pressed','false');
+      b.onclick = () => {
+        box.querySelectorAll('.slot').forEach(s => s.setAttribute('aria-pressed','false'));
+        b.setAttribute('aria-pressed','true');
+        etat.heureChoisie = hm;
+        $('formError').textContent='';
+      };
+      box.appendChild(b);
+    });
+  }catch(e){
+    msg.textContent = "Impossible de charger les créneaux. Réessaie.";
+  }
+}
+
+/* ================== ENVOI ================== */
+async function envoyer(){
+  const err = $('formError'); err.textContent='';
+  const payload = {
+    service:   $('service').value,
+    date:      $('date').value,
+    heure:     etat.heureChoisie,
+    prenom:    $('prenom').value.trim(),
+    instagram: $('instagram').value.trim(),
+    message:   $('message').value.trim()
+  };
+
+  if(!payload.service){ err.textContent='Choisis un soin.'; return; }
+  if(!payload.date){ err.textContent='Choisis une date.'; return; }
+  if(!payload.heure){ err.textContent='Choisis un créneau.'; return; }
+  if(!payload.prenom){ err.textContent='Indique ton prénom.'; return; }
+  if(!payload.instagram){ err.textContent='Indique ton Instagram pour la confirmation.'; return; }
+
+  const btn = $('submitBtn');
+  btn.disabled=true; btn.textContent='Envoi…';
+
+  try{
+    // POST sans en-tête Content-Type → requête "simple", pas de préflight CORS
+    // (Apps Script lit quand même e.postData.contents)
+    const r = await fetch(API, { method:'POST', body: JSON.stringify(payload) });
+    const data = await r.json();
+
+    if(data.ok){ afficherConfirmation(data); return; }
+
+    if(data.raison === 'CRENEAU_PRIS'){
+      err.textContent = 'Ce créneau vient d\'être réservé. Choisis-en un autre.';
+      chargerCreneaux();
+    }else{
+      err.textContent = 'Un souci est survenu. Réessaie dans un instant.';
+    }
+    btn.disabled=false; btn.textContent='Envoyer ma demande';
+  }catch(e){
+    err.textContent = 'Envoi impossible. Vérifie ta connexion et réessaie.';
+    btn.disabled=false; btn.textContent='Envoyer ma demande';
+  }
+}
+
+function afficherConfirmation(d){
+  $('bookingCard').style.display='none';
+  const ig = d.instagram || '';
+  $('confirmText').innerHTML = 'Merci ' + d.prenom + ' ! Je te contacte très vite sur Instagram ('
+    + ig + ') pour confirmer ton rendez-vous et t\'envoyer l\'adresse.';
+  $('confirmRecap').innerHTML =
+    '<b>Soin :</b> ' + d.service + '<br><b>Date :</b> ' + d.date + '<br><b>Heure :</b> ' + d.heure;
+  $('confirmNote').textContent = 'Rien n\'est encore confirmé tant que je ne t\'ai pas répondu — pense à surveiller tes messages 🤎';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ================== BRANCHEMENTS ================== */
+$('service').addEventListener('change', chargerCreneaux);
+$('date').addEventListener('change', chargerCreneaux);
+$('submitBtn').addEventListener('click', envoyer);
+init();
+</script>
+</body>
+</html>
